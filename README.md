@@ -1,163 +1,331 @@
-🚨 Blockchain-Assisted DDoS Detection System
+# 🚨 DDoS Detection & Tamper-Proof Security Logging System
 
-A production-style, flow-based DDoS detection and security logging system that combines Machine Learning for attack classification and Blockchain-inspired immutable logging for auditability and trust.
+A production-structured Machine Learning + API + Dashboard system for detecting DDoS attacks using flow-based traffic features, with blockchain-style integrity logging for security event auditing.
 
-📌 Overview
+This project demonstrates applied machine learning in cybersecurity, secure API design, defensive engineering, and tamper-evident logging.
 
-Distributed Denial-of-Service (DDoS) attacks remain a critical threat to network availability. This project implements a cloud-deployable DDoS detection service using statistical network flow features and a trained Machine Learning model. Detected security incidents are recorded in a tamper-evident blockchain-style ledger, ensuring integrity and auditability of security decisions.
+---
 
-The system is designed following industry security and ML engineering practices, focusing on correctness, transparency, and deployability rather than unsafe traffic generation.
+## 📌 Project Overview
 
-🧠 Key Features
+This system performs:
 
-Flow-based Machine Learning DDoS detection
+- Flow-based DDoS classification using a trained RandomForest model  
+- Real-time inference via FastAPI  
+- Interactive monitoring dashboard using Streamlit  
+- Blockchain-style immutable ledger logging for detected DDoS events  
+- Integrity verification of logged security events  
 
-RESTful API for real-time inference
+The system simulates a security monitoring pipeline where malicious network activity is detected and securely recorded.
 
-Blockchain-style immutable security event ledger
+---
 
-Tamper detection and ledger verification
+## 🏗 Architecture
 
-SOC-style monitoring dashboard
+```text
+                +----------------------+
+                |  CIC-DDoS2019 Data   |
+                +----------+-----------+
+                           |
+                           v
+                  +----------------+
+                  |  ML Training   |
+                  | RandomForest   |
+                  +--------+-------+
+                           |
+                     model.joblib
+                           |
+                           v
++----------------+   REST API   +------------------+
+| Streamlit      | <----------> |  FastAPI Service |
+| Dashboard      |              |  /predict        |
++----------------+              |  /ledger         |
+                                |  /verify         |
+                                +--------+---------+
+                                         |
+                                         v
+                               +-------------------+
+                               |  Blockchain Ledger|
+                               |  (ledger.json)    |
+                               +-------------------+
+```
 
-Clean separation of ML, API, logging, and UI layers
+---
 
-Ethical and lab-safe implementation
+## 🔬 Machine Learning Component
 
-🏗️ System Architecture
-User / Analyst
-      ↓
-Streamlit Dashboard
-      ↓
-FastAPI Inference Service
-      ↓
-ML Model (Random Forest)
-      ↓
-Blockchain-Inspired Security Ledger
+- Algorithm: RandomForestClassifier  
+- Problem Type: Binary Classification (Benign vs DDoS)  
+- Dataset: CIC-DDoS2019  
+- Preprocessing:
+  - Removal of non-numeric columns
+  - NaN and infinite value cleaning
+  - Feature alignment to trained model size
 
-🤖 Machine Learning Model
+The model is trained using `ml/train.py` and saved as:
 
-Model: Random Forest Classifier
+```text
+ml/model.joblib
+```
 
-Task: Binary Classification (Benign vs DDoS)
+The API loads this model at runtime with defensive error handling.
 
-Dataset: CIC-DDoS2019 (Flow-based CSV features)
+---
 
-Training Size: ~225,000 network flows
+## 🚀 API Endpoints
 
-Metrics:
+### `GET /`
+Returns service status message.
 
-Accuracy: ~99.9%
+---
 
-Precision/Recall/F1: Near-perfect
+### `GET /health`
 
-The model learns statistical traffic patterns rather than inspecting raw packets, making it scalable and privacy-preserving.
+Health check endpoint.
 
-🔗 Blockchain-Assisted Logging
+Response:
 
-Blockchain is not used for traffic processing or detection.
-Instead, it provides:
+```json
+{
+  "status": "ok",
+  "model_loaded": true,
+  "service": "ddos-detection-api"
+}
+```
 
-Immutable security event logging
+---
 
-Cryptographic hash chaining
+### `POST /predict`
 
-Tamper detection via ledger verification
+Performs flow classification.
 
-Audit-ready incident history
+Request:
 
-Each detected DDoS event is recorded as a block containing:
+```json
+{
+  "features": [0.0, 10.2, 5.6]
+}
+```
 
-Timestamp
+Response:
 
-Detection result
+```json
+{
+  "prediction": "DDoS",
+  "confidence": 0.9821,
+  "features_used": 78,
+  "model_decision": "statistical flow-based classification"
+}
+```
 
-Confidence score
+If a DDoS attack is detected, the event is written to the blockchain ledger.
 
-Model metadata
+---
 
-Hash linkage to previous events
+### `GET /ledger`
 
-This mirrors how real SOC audit trails are designed.
+Returns all logged DDoS events.
 
-📊 Dashboard Capabilities
+---
 
-Manual flow feature input for integration testing
+### `GET /ledger/verify`
 
-Live prediction results with confidence
+Verifies blockchain integrity.
 
-Security event ledger viewer
+Ensures:
 
-Ledger integrity verification status
+- No block tampering  
+- No broken hash chain  
+- Valid recalculated SHA256 hashes  
 
-Clear separation between detection and logging
+---
 
-🧪 API Endpoints
-Endpoint	Description
-/health	Service health check
-/model	Model metadata and configuration
-/predict	DDoS prediction endpoint
-/ledger	View security event ledger
-/ledger/verify	Verify ledger integrity
+## 🔐 Blockchain-Style Ledger
 
-Swagger documentation is available at:
+Each detected DDoS event is stored as a block:
 
-/docs
+```json
+{
+  "index": 3,
+  "timestamp": "2026-02-16T12:00:00",
+  "prediction": "DDoS",
+  "confidence": 0.98,
+  "previous_hash": "abc123",
+  "hash": "def456"
+}
+```
 
-⚠️ What This Project Does NOT Do
+Each block includes:
 
-The following are intentionally excluded:
+- SHA256 hash of its contents  
+- Reference to previous block  
+- Immutable chaining  
 
-Live packet capture
+This ensures tamper-evident logging for security audit scenarios.
 
-Real attack generation
+---
 
-Firewall or traffic blocking
+## 📊 Streamlit Dashboard
 
-Continuous network monitoring
+Features:
 
-These features are outside the scope of safe academic validation and are listed as future work.
+- Single flow detection  
+- CSV batch detection  
+- Real-time DDoS event metrics  
+- Ledger visualization  
+- Integrity verification display  
 
-🔐 Ethical & Security Considerations
+Run dashboard:
 
-No real traffic is intercepted or generated
+```bash
+streamlit run dashboard/app.py
+```
 
-No attack tools are implemented
+---
 
-No sensitive packet data is stored
+## 🛠 Installation
 
-Ledger stores decisions, not raw traffic
+Clone repository:
 
-The system adheres to ethical cybersecurity research standards.
+```bash
+git clone https://github.com/YOUR_USERNAME/DDOS-BLOCKCHAIN-PROJECT.git
+cd DDOS-BLOCKCHAIN-PROJECT
+```
 
-🚀 Deployment
+Create virtual environment:
 
-The system is designed to be cloud-deployable:
+```bash
+python -m venv venv
+source venv/bin/activate      # Linux / Mac
+venv\Scripts\activate         # Windows
+```
 
-Backend: FastAPI (Render / Railway)
+Install dependencies:
 
-Dashboard: Streamlit Cloud
+```bash
+pip install -r requirements.txt
+```
 
-Ledger: Local / cloud file-backed storage
+---
 
-Deployment instructions are included for reproducibility.
+## 🧠 Train Model
 
-📈 Future Enhancements
+Place dataset at:
 
-Live flow ingestion using CICFlowMeter
+```text
+data/raw/Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv
+```
 
-Streaming pipelines (Kafka / Redis)
+Then run:
 
-Alerting integrations (Email, Webhooks)
+```bash
+python ml/train.py
+```
 
-Role-based dashboard access
+This generates:
 
-Enterprise blockchain backends
+```text
+ml/model.joblib
+```
 
-🧑‍💻 Author Note
+---
 
-This project demonstrates industry-aligned ML security engineering, emphasizing correctness, transparency, and trust rather than unsafe or unrealistic demonstrations.
+## ▶ Run API
 
-📜 License
+```bash
+uvicorn api.main:app --reload
+```
 
-This project is intended for educational and research purposes.
+API runs at:
+
+```text
+http://127.0.0.1:8000
+```
+
+Interactive docs available at:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+---
+
+## 🧪 Offline Replay Simulation
+
+Simulates near real-time flow ingestion:
+
+```bash
+python offline_replay.py
+```
+
+Each detected DDoS event is automatically logged in the ledger.
+
+---
+
+## 📁 Project Structure
+
+```text
+DDOS-BLOCKCHAIN-PROJECT/
+│
+├── api/
+│   └── main.py
+│
+├── dashboard/
+│   └── app.py
+│
+├── ml/
+│   └── train.py
+│
+├── blockchain/
+│
+├── data/
+│   └── raw/   (ignored in git)
+│
+├── offline_replay.py
+├── requirements.txt
+├── README.md
+├── .gitignore
+```
+
+---
+
+## 🛡 Defensive Engineering Features
+
+- Safe model loading (no startup crash)  
+- Ledger auto-recovery if missing  
+- Global exception handler  
+- Feature length validation  
+- Clean separation of concerns  
+- Runtime integrity verification  
+
+---
+
+## 📈 Skills Demonstrated
+
+- Machine Learning for Network Security  
+- FastAPI REST API Development  
+- Streamlit Dashboard Engineering  
+- Data Preprocessing & Feature Engineering  
+- Blockchain-style Hash Chaining  
+- Secure Logging Design  
+- Defensive Backend Architecture  
+- Structured Project Organization  
+
+---
+
+## ⚠ Legal Disclaimer
+
+This tool is developed strictly for:
+
+- Educational purposes  
+- Ethical security testing  
+- Authorized environments only  
+
+It simulates detection using offline dataset features and is not a live packet capture IDS.
+
+---
+
+## 👨‍💻 Author
+
+Prateek Yadav  
+Built as part of a professional cybersecurity portfolio project.

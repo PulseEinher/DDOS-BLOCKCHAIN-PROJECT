@@ -2,6 +2,8 @@ __pycache__/
 *.pyc
 .env
 .venv
-.ipynb_checkpoints
-blockchain/ledger.json
+.ipynb_checkpoints/
+
 data/raw/
+ml/model.joblib
+blockchain/ledger.json
