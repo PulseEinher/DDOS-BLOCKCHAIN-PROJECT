@@ -188,7 +188,7 @@ streamlit run dashboard/app.py
 Clone repository:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/DDOS-BLOCKCHAIN-PROJECT.git
+git clone https://github.com/PulseEinher/DDOS-BLOCKCHAIN-PROJECT.git
 cd DDOS-BLOCKCHAIN-PROJECT
 ```
 
