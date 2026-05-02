@@ -325,7 +325,4 @@ It simulates detection using offline dataset features and is not a live packet c
 
 ---
 
-## 👨‍💻 Author
-
-Prateek Yadav  
-Built as part of a professional cybersecurity portfolio project.
+Made with 🤍 by PulseEinher
